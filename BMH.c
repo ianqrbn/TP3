@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "BMH.h"
 
@@ -15,7 +16,7 @@ void preProcessamento(char *padrao, int m, int *tabelaDeslocamento)
         tabelaDeslocamento[i] = m;
     }
 
-    // Preenche a tabela de deslocamento com os valores apropriados
+    // Preenche a tabela de deslocamento com os valores de salto
     for (i = 0; i < m - 1; i++)
     {
         tabelaDeslocamento[(unsigned char)padrao[i]] = m - i - 1;
@@ -26,14 +27,13 @@ int BMH(char *texto, char *padrao, int i, int n)
 {
     int m = strlen(padrao);
     int tabelaDeslocamento[MAX];
-    int i, j;
+    int j;
 
     preProcessamento(padrao, m, tabelaDeslocamento);
 
     while (i <= n - m) // i = onde começa a querie e n = onde termina a querie
     {
         j = m - 1;
-
         // Comparação a sequencia dee caracteres da direita para a esquerda
         while (j >= 0 && padrao[j] == texto[i + j])
         {
@@ -55,29 +55,37 @@ int BMH(char *texto, char *padrao, int i, int n)
     return 0; // padrao não foi encontrado
 }
 
-void leitura(FILE *nomearq)
+void leituraBMH(FILE *nomearqEntrada, FILE *nomearqSaida)
 {
-    char texto[MAX];
-    char padrao[MAX];
+    char *texto = NULL;
+    char *padrao = NULL;
+    size_t tamanho = 0; // Tamanho do buffer
     int k, a, b;
 
-    fscanf(nomearq, "%s", texto);
-    fscanf(nomearq, "%s", padrao);
-    fscanf(nomearq, "%d", &k);
+    getline(&texto, &tamanho, nomearqEntrada);
+    texto[strlen(texto) - 1] = '\0'; // Remove o carctere '\n' da string
+
+    getline(&padrao, &tamanho, nomearqEntrada);
+    padrao[strlen(padrao) - 1] = '\0';
+
+    fscanf(nomearqEntrada, "%d", &k);
 
     for (int i = 0; i < k; i++)
     {
-        fscanf(nomearq, "%d %d", &a, &b);
-        if (BMH(texto, padrao, a - 1, b - 1))
+        fscanf(nomearqEntrada, "%d %d", &a, &b);
+        if (BMH(texto, padrao, a - 1, b))
         {
-            printf("Sim\n");
+            fprintf(nomearqSaida, "Sim\n");
         }
         else
         {
-            printf("Não\n");
+            fprintf(nomearqSaida, "Não\n");
         }
     }
-    fclose(nomearq);
 
-    return 0;
+    free(texto);
+    free(padrao);
+
+    fclose(nomearqEntrada);
+    fclose(nomearqSaida);
 }
