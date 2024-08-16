@@ -42,10 +42,9 @@ int BMH(char *texto, char *padrao, int i, int n)
             j--;
         }
 
-        // Se o padrão foi encontrado
         if (j < 0)
         {
-            return 1;
+            return 1; // Se o padrão foi encontrado
         }
         else
         {
@@ -61,13 +60,13 @@ void leituraBMH(FILE *nomearqEntrada, FILE *nomearqSaida)
 {
     char *texto = NULL;
     char *padrao = NULL;
-    size_t tamanho = 0; 
+    size_t tamanho = 0;
     int k, inicioQuery, fimQuery, casou;
 
     FILE *fp = fopen("grafico.txt", "a");
 
     getline(&texto, &tamanho, nomearqEntrada);
-    texto[strlen(texto) - 1] = '\0'; 
+    texto[strlen(texto) - 1] = '\0';
 
     getline(&padrao, &tamanho, nomearqEntrada);
     padrao[strlen(padrao) - 1] = '\0';
@@ -82,7 +81,7 @@ void leituraBMH(FILE *nomearqEntrada, FILE *nomearqSaida)
         casou = BMH(texto, padrao, inicioQuery - 1, fimQuery);
         tempo tempoFinal = tempoAtual();
 
-        if (casou) 
+        if (casou)
         {
             fprintf(nomearqSaida, "Sim\n");
         }
