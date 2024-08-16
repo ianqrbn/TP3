@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "tempo.h"
 #include "BMH.h"
 
 #define MAX 256 // Número máximo de caracteres ASCII
@@ -28,12 +28,14 @@ int BMH(char *texto, char *padrao, int i, int n)
     int m = strlen(padrao);
     int tabelaDeslocamento[MAX];
     int j;
+    int copiaJ = 0;
 
     preProcessamento(padrao, m, tabelaDeslocamento);
 
-    while (i <= n - m) // i = onde começa a querie e n = onde termina a querie
+    while (i <= n - m) // i = onde começa a query e n = onde termina a query
     {
         j = m - 1;
+        copiaJ = j;
         // Comparação a sequencia dee caracteres da direita para a esquerda
         while (j >= 0 && padrao[j] == texto[i + j])
         {
@@ -48,7 +50,7 @@ int BMH(char *texto, char *padrao, int i, int n)
         else
         {
             // Desloca o padrão para a direita
-            i += tabelaDeslocamento[(unsigned char)texto[i + j]];
+            i += tabelaDeslocamento[(unsigned char)texto[i + copiaJ]];
         }
     }
 
@@ -59,11 +61,13 @@ void leituraBMH(FILE *nomearqEntrada, FILE *nomearqSaida)
 {
     char *texto = NULL;
     char *padrao = NULL;
-    size_t tamanho = 0; // Tamanho do buffer
-    int k, a, b;
+    size_t tamanho = 0; 
+    int k, inicioQuery, fimQuery, casou;
+
+    FILE *fp = fopen("grafico.txt", "a");
 
     getline(&texto, &tamanho, nomearqEntrada);
-    texto[strlen(texto) - 1] = '\0'; // Remove o carctere '\n' da string
+    texto[strlen(texto) - 1] = '\0'; 
 
     getline(&padrao, &tamanho, nomearqEntrada);
     padrao[strlen(padrao) - 1] = '\0';
@@ -72,8 +76,13 @@ void leituraBMH(FILE *nomearqEntrada, FILE *nomearqSaida)
 
     for (int i = 0; i < k; i++)
     {
-        fscanf(nomearqEntrada, "%d %d", &a, &b);
-        if (BMH(texto, padrao, a - 1, b))
+        fscanf(nomearqEntrada, "%d %d", &inicioQuery, &fimQuery);
+
+        tempo tempoInicio = tempoAtual();
+        casou = BMH(texto, padrao, inicioQuery - 1, fimQuery);
+        tempo tempoFinal = tempoAtual();
+
+        if (casou) 
         {
             fprintf(nomearqSaida, "Sim\n");
         }
@@ -81,6 +90,7 @@ void leituraBMH(FILE *nomearqEntrada, FILE *nomearqSaida)
         {
             fprintf(nomearqSaida, "Não\n");
         }
+        imprimeTempos(tempoInicio, tempoFinal, fp);
     }
 
     free(texto);
@@ -88,4 +98,5 @@ void leituraBMH(FILE *nomearqEntrada, FILE *nomearqSaida)
 
     fclose(nomearqEntrada);
     fclose(nomearqSaida);
+    fclose(fp);
 }
